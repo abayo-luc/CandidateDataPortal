@@ -7,7 +7,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { ColorSchemeName } from 'react-native';
 
-import { HomeScreen } from '../screens/Home';
+import { FarmListScreen } from '../screens/FarmList';
+import { RecordingScreen } from '../screens/Recording';
 
 import { RootStackParamList } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
@@ -41,9 +42,20 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen
         name='Root'
-        component={HomeScreen}
+        component={FarmListScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Group
+        screenOptions={{
+          presentation: 'fullScreenModal',
+        }}
+      >
+        <Stack.Screen
+          name='Recording'
+          component={RecordingScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Group>
     </Stack.Navigator>
   );
 }

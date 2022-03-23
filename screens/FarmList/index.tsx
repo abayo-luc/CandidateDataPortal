@@ -6,11 +6,14 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQuery } from 'react-query';
+import { FAB } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
-import { Text, ListItem } from '../../../components';
+import { Text, ListItem } from '../../components';
 import { styles } from './styles';
-import Layout from '../../../constants/Layout';
-import { fetch, ALL_FARMS } from '../../../store';
+import Layout from '../../constants/Layout';
+import { fetch, ALL_FARMS } from '../../store';
+import Colors from '../../constants/Colors';
 
 const DATA: { [key: string]: any }[] = [
   {
@@ -27,21 +30,22 @@ const DATA: { [key: string]: any }[] = [
   },
 ];
 
-export const HomeScreen = () => {
+export const FarmListScreen = () => {
+  const navigation = useNavigation();
   const { isLoading, data = [] } = useQuery(ALL_FARMS, () =>
     fetch('/farms')
   );
 
   return (
     <ImageBackground
-      source={require('../../../assets/images/splash.png')}
+      source={require('../../assets/images/splash.png')}
       resizeMode='cover'
       style={Layout.window}
     >
       <View style={styles.container}>
         <View style={styles.section1}>
           <Image
-            source={require('../../../assets/images/logo.png')}
+            source={require('../../assets/images/logo.png')}
             style={styles.logo}
           />
           <Text style={styles.title}>Wakulima</Text>
@@ -80,6 +84,12 @@ export const HomeScreen = () => {
           />
         </View>
       </View>
+      <FAB
+        icon='plus'
+        onPress={() => navigation.navigate('Recording')}
+        color={Colors.light.background}
+        style={styles.fab}
+      />
     </ImageBackground>
   );
 };
