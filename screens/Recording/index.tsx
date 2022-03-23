@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Text, View } from '../../components';
-import MapView, { Polygon } from 'react-native-maps';
+import { View } from '../../components';
+import MapView from 'react-native-maps';
 import { StyleSheet, Dimensions } from 'react-native';
 import Layout from '../../constants/Layout';
 import * as Location from 'expo-location';
@@ -10,38 +10,6 @@ const LONGITUDE_DELTA =
   LATITUDE_DELTA *
   (Layout.window.width / Layout.window.height);
 
-const coordinates = [
-  {
-    name: 'Burger',
-    latitude: 37.8025259,
-    longitude: -122.4351431,
-    // image: require('./img/burger.jpg'),
-  },
-  {
-    name: 'Pizza',
-    latitude: 37.7946386,
-    longitude: -122.421646,
-    // image: require('./img/pizza.jpg'),
-  },
-  {
-    name: 'Soup',
-    latitude: 37.7665248,
-    longitude: -122.4165628,
-    // image: require('./img/soup.jpg'),
-  },
-  {
-    name: 'Sushi',
-    latitude: 37.7834153,
-    longitude: -122.4527787,
-    // image: require('./img/sushi.jpg'),
-  },
-  {
-    name: 'Curry',
-    latitude: 37.7948105,
-    longitude: -122.4596065,
-    // image: require('./img/curry.jpg'),
-  },
-];
 export const RecordingScreen = () => {
   const [initialPosition, setInitialPosition] = useState<{
     latitude: number;
@@ -68,10 +36,10 @@ export const RecordingScreen = () => {
       );
       const { latitude, longitude } = location?.coords;
       setInitialPosition({
-        latitude: -1.9553560154837102,
-        longitude: 30.09647643127834,
-        latitudeDelta: 0.09,
-        longitudeDelta: 0.035,
+        latitude,
+        longitude,
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LONGITUDE_DELTA,
       });
     })();
   }, []);
