@@ -1,8 +1,11 @@
+import { DefaultTheme } from 'react-native-paper';
+
 const tintColorLight = '#2B7F68';
 const tintColorDark = '#fff';
 
 export default {
   light: {
+    ...DefaultTheme.colors,
     primary: '#2B7F68',
     accent: '#F2F9F7',
     text: '#000',
@@ -10,6 +13,7 @@ export default {
     tint: tintColorLight,
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorLight,
+    red: '#E20F0F',
   },
   dark: {
     text: '#fff',

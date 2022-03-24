@@ -11,4 +11,7 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: 4,
   },
+  idSection: {
+    color: Colors.light.primary,
+  },
 });

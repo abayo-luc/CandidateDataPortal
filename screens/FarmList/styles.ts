@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
+import Colors from '../../constants/Colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#2B7F68',
-    opacity: 0.8,
+    //opacity: 0.8,
   },
   section1: {
     flex: 0.3,
@@ -39,8 +40,14 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingBottom: 20,
   },
-
   logo: {
     margin: 15,
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: Colors.light.primary,
   },
 });
