@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Colors from '../../../constants/Colors';
 import { styles } from '../styles';
+import { useRecording } from '../../../context/RecordContext';
 
 export const RecordingHeaderBack = () => {
   const navigation = useNavigation();
@@ -22,6 +23,10 @@ export const RecordingHeaderBack = () => {
 };
 
 export const RecordingHeaderRecord = () => {
+  const { recordingState } = useRecording();
+  if (recordingState === 'none') {
+    return null;
+  }
   return (
     <TouchableOpacity>
       <View style={styles.record}>
@@ -29,28 +34,32 @@ export const RecordingHeaderRecord = () => {
           name='record-vinyl'
           color={Colors.light.background}
         />
-        <Text style={styles.recordText}>Recording</Text>
+        <Text style={styles.recordText}>
+          {recordingState === 'recording'
+            ? 'Recording...'
+            : 'Paused'}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 };
 
 interface RecordingOptionsProps {
-  onStopOrStart: () => void;
   onSave: () => void;
-  recordingState?: 'recording' | 'stopped';
 }
 export const RecordingOptions: React.FC<
   RecordingOptionsProps
-> = ({ onStopOrStart, onSave, recordingState }) => {
-  const [recording, setRecording] = useState(false);
-  const navigation = useNavigation();
+> = ({ onSave }) => {
+  const {
+    recordingState,
+    changeRecordingState,
+    discardRecording,
+  } = useRecording();
+
   return (
     <View style={styles.footer}>
       <View style={styles.recordingOptions}>
-        <TouchableOpacity
-          onPress={() => console.log('>>>>delete pressed')}
-        >
+        <TouchableOpacity onPress={discardRecording}>
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons
               name='delete'
@@ -58,23 +67,34 @@ export const RecordingOptions: React.FC<
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onStopOrStart}>
-          <View style={styles.iconContainer}>
-            {recordingState === 'recording' ? (
+        {recordingState === 'recording' ? (
+          <TouchableOpacity
+            onPress={() => changeRecordingState('paused')}
+          >
+            <View style={styles.iconContainer}>
               <AntDesign
                 name='pausecircleo'
                 color='#E20F0F'
                 size={20}
               />
-            ) : (
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() =>
+              changeRecordingState('recording')
+            }
+          >
+            <View style={styles.iconContainer}>
               <FontAwesome5
                 name='record-vinyl'
                 color='#E20F0F'
                 size={20}
               />
-            )}
-          </View>
-        </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity onPress={onSave}>
           <View style={styles.iconContainer}>
             <AntDesign

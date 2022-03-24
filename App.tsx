@@ -11,6 +11,10 @@ import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { queryClient } from './store';
 import Colors from './constants/Colors';
+import {
+  RecordingContext,
+  RecordingProvider,
+} from './context/RecordContext';
 
 const theme = {
   ...DefaultTheme,
@@ -27,10 +31,12 @@ export default function App() {
     return (
       <PaperProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <SafeAreaProvider>
-            <Navigation colorScheme={colorScheme} />
-            <StatusBar />
-          </SafeAreaProvider>
+          <RecordingProvider>
+            <SafeAreaProvider>
+              <Navigation colorScheme={colorScheme} />
+              <StatusBar />
+            </SafeAreaProvider>
+          </RecordingProvider>
         </QueryClientProvider>
       </PaperProvider>
     );
