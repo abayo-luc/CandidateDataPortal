@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
+import { View } from 'react-native';
 import MapView, {
   Polygon,
   Marker,
 } from 'react-native-maps';
-import Layout from '../../constants/Layout';
 import * as Location from 'expo-location';
 import { styles } from './styles';
 import { StatusBar } from 'react-native';
@@ -12,16 +11,13 @@ import { RecordingOptions } from './components/RecordingCompnents';
 import * as Recording from './components';
 import { useNavigation } from '@react-navigation/native';
 import Colors from '../../constants/Colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
-  AntDesign,
-  FontAwesome5,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
-
-const LATITUDE_DELTA = 0.28;
-const LONGITUDE_DELTA =
-  LATITUDE_DELTA *
-  (Layout.window.width / Layout.window.height);
+  LocationObject,
+  LocationOptions,
+  LocationSubscription,
+} from 'expo-location';
+import { useRecording } from '../../context/RecordContext';
 
 interface Props {
   step:
@@ -72,10 +68,21 @@ const RecordingForm: React.FC<Props> = ({
   }
 };
 
+const positionConfig: LocationOptions = {
+  accuracy: 4.5,
+  //timeInterval: 1000,
+  distanceInterval: 5,
+};
+interface CoordinateType {
+  latitude: number;
+  longitude: number;
+}
 export const MapRecording = () => {
-  const [recordingState, setRecordingState] = useState<
-    'recording' | 'stopped'
-  >();
+  const { discardRecording, recordingState } =
+    useRecording();
+  const [currentLocation, setCurrentLocation] =
+    useState<CoordinateType>();
+
   const navigation = useNavigation();
   const [step, setStep] = useState<
     | 'recording'
@@ -94,8 +101,7 @@ export const MapRecording = () => {
   const [coordinates, setCoordinates] = useState<
     { latitude: number; longitude: number }[]
   >([]);
-
-  useEffect(() => {}, []);
+  let clientLocation: LocationSubscription;
   useEffect(() => {
     (async () => {
       let { status } =
@@ -108,8 +114,9 @@ export const MapRecording = () => {
       }
 
       let location = await Location.getCurrentPositionAsync(
-        {}
+        positionConfig
       );
+
       const { latitude, longitude } = location?.coords;
       setInitialPosition({
         latitude,
@@ -118,19 +125,46 @@ export const MapRecording = () => {
         longitudeDelta: 0.0001,
       });
       setCoordinates([{ latitude, longitude }]);
+      setCurrentLocation({ latitude, longitude });
     })();
   }, []);
 
-  const onMapPress = async () => {
-    let location = await Location.getCurrentPositionAsync(
-      {}
-    );
-    const { latitude, longitude } = location?.coords;
-    setCoordinates((state) => [
-      ...state,
-      { longitude, latitude },
-    ]);
+  const onLocationChange = async (
+    location: LocationObject
+  ) => {
+    if (recordingState === 'recording') {
+      const { latitude, longitude } = location?.coords;
+      setCurrentLocation({ latitude, longitude });
+      setCoordinates((state) => [
+        ...state,
+        { longitude, latitude },
+      ]);
+    }
   };
+
+  const watchPosition = useCallback(async () => {
+    if (!clientLocation) {
+      clientLocation = await Location.watchPositionAsync(
+        positionConfig,
+        onLocationChange
+      );
+    }
+  }, [recordingState]);
+
+  useEffect(() => {
+    watchPosition();
+    return () => {
+      if (clientLocation) {
+        clientLocation.remove();
+      }
+    };
+  }, [recordingState]);
+
+  useEffect(() => {
+    return () => {
+      discardRecording();
+    };
+  }, []);
 
   return (
     <>
@@ -145,9 +179,7 @@ export const MapRecording = () => {
           initialRegion={initialPosition}
           mapType='satellite'
           minZoomLevel={15}
-          onPress={onMapPress}
           loadingEnabled
-          showsUserLocation
           loadingBackgroundColor={Colors.light.accent}
         >
           <Polygon
@@ -155,11 +187,11 @@ export const MapRecording = () => {
             fillColor='rgba(35, 140, 35,0.4)'
             strokeColor='#238c23' // fallback for when `strokeColors` is not supported by the map-provider
           />
-          {initialPosition?.latitude ? (
+          {currentLocation?.latitude ? (
             <Marker
               coordinate={{
-                latitude: initialPosition?.latitude,
-                longitude: initialPosition?.longitude,
+                latitude: currentLocation?.latitude,
+                longitude: currentLocation?.longitude,
               }}
             >
               <MaterialCommunityIcons
@@ -181,17 +213,9 @@ export const MapRecording = () => {
         confirmDiscard={() => navigation.navigate('Root')}
       >
         <RecordingOptions
-          onStopOrStart={() => {
-            if (recordingState === 'recording') {
-              return setRecordingState('stopped');
-            } else {
-              return setRecordingState('recording');
-            }
-          }}
           onSave={() => {
             setStep('farm-label');
           }}
-          recordingState={recordingState}
         />
       </RecordingForm>
     </>
