@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { View } from 'react-native';
-import MapView, { Polygon } from 'react-native-maps';
+import { View, Text } from 'react-native';
+import MapView, {
+  Polygon,
+  Marker,
+} from 'react-native-maps';
 import Layout from '../../constants/Layout';
 import * as Location from 'expo-location';
 import { styles } from './styles';
@@ -8,6 +11,12 @@ import { StatusBar } from 'react-native';
 import { RecordingOptions } from './components/RecordingCompnents';
 import * as Recording from './components';
 import { useNavigation } from '@react-navigation/native';
+import Colors from '../../constants/Colors';
+import {
+  AntDesign,
+  FontAwesome5,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 
 const LATITUDE_DELTA = 0.28;
 const LONGITUDE_DELTA =
@@ -82,6 +91,9 @@ export const MapRecording = () => {
     longitudeDelta: number;
   }>();
   const [errorMsg, setErrorMsg] = useState('');
+  const [coordinates, setCoordinates] = useState<
+    { latitude: number; longitude: number }[]
+  >([]);
 
   useEffect(() => {}, []);
   useEffect(() => {
@@ -105,11 +117,19 @@ export const MapRecording = () => {
         latitudeDelta: 0.0001,
         longitudeDelta: 0.0001,
       });
+      setCoordinates([{ latitude, longitude }]);
     })();
   }, []);
 
   const onMapPress = async () => {
-    console.log('>>>>>>>>onpress');
+    let location = await Location.getCurrentPositionAsync(
+      {}
+    );
+    const { latitude, longitude } = location?.coords;
+    setCoordinates((state) => [
+      ...state,
+      { longitude, latitude },
+    ]);
   };
 
   return (
@@ -126,33 +146,29 @@ export const MapRecording = () => {
           mapType='satellite'
           minZoomLevel={15}
           onPress={onMapPress}
+          loadingEnabled
+          showsUserLocation
+          loadingBackgroundColor={Colors.light.accent}
         >
           <Polygon
-            coordinates={[
-              {
-                latitude: -1.954388,
-                longitude: 30.127411,
-              },
-              {
-                latitude: -1.954388 - 0.0002,
-                longitude: 30.127411 - 0.0002,
-              },
-              {
-                latitude: -1.954388 - 0.0003,
-                longitude: 30.127411 - 0.0003,
-              },
-              {
-                latitude: -1.954388 - 0.0002,
-                longitude: 30.127411 - 0.0003,
-              },
-              {
-                latitude: -1.954388,
-                longitude: 30.127411,
-              },
-            ]}
+            coordinates={coordinates}
             fillColor='rgba(35, 140, 35,0.4)'
             strokeColor='#238c23' // fallback for when `strokeColors` is not supported by the map-provider
           />
+          {initialPosition?.latitude ? (
+            <Marker
+              coordinate={{
+                latitude: initialPosition?.latitude,
+                longitude: initialPosition?.longitude,
+              }}
+            >
+              <MaterialCommunityIcons
+                name='map-marker-outline'
+                color={Colors.light.red}
+                size={30}
+              />
+            </Marker>
+          ) : null}
         </MapView>
       </View>
 
