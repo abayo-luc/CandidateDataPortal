@@ -21,6 +21,7 @@ export type RootStackParamList = {
   Modal: undefined;
   NotFound: undefined;
   Recording: undefined;
+  DiscardRecording: undefined;
 };
 
 export type RootStackScreenProps<

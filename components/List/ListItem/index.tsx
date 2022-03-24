@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from '../../Themed';
+import { Text, View } from 'react-native';
 import { styles } from './styles';
 
 interface Props {
@@ -15,7 +15,7 @@ export const ListItem: React.FC<Props> = ({
   const { id, label, size } = props;
   return (
     <View style={{ ...styles.container, ...listItemStyle }}>
-      <Text lightColor='#2B7F68' style={{ flex: 0.3 }}>
+      <Text style={{ flex: 0.3, ...styles.idSection }}>
         {id}
       </Text>
       <Text style={{ flex: 1 }}>{label}</Text>

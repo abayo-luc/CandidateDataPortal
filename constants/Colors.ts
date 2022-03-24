@@ -13,6 +13,7 @@ export default {
     tint: tintColorLight,
     tabIconDefault: '#ccc',
     tabIconSelected: tintColorLight,
+    red: '#E20F0F',
   },
   dark: {
     text: '#fff',

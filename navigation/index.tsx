@@ -6,9 +6,14 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { ColorSchemeName } from 'react-native';
+import { Text, View } from '../components';
 
 import { FarmListScreen } from '../screens/FarmList';
-import { RecordingScreen } from '../screens/Recording';
+import {
+  MapRecording,
+  RecordingHeaderBack,
+  RecordingHeaderRecord,
+} from '../screens/Recording';
 
 import { RootStackParamList } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
@@ -45,17 +50,17 @@ function RootNavigator() {
         component={FarmListScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Group
-        screenOptions={{
-          presentation: 'fullScreenModal',
+
+      <Stack.Screen
+        name='Recording'
+        component={MapRecording}
+        options={{
+          headerTransparent: true,
+          title: '',
+          headerLeft: () => <RecordingHeaderBack />,
+          headerRight: () => <RecordingHeaderRecord />,
         }}
-      >
-        <Stack.Screen
-          name='Recording'
-          component={RecordingScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Group>
+      />
     </Stack.Navigator>
   );
 }
