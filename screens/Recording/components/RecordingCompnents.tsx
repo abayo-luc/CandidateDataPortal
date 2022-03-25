@@ -46,10 +46,11 @@ export const RecordingHeaderRecord = () => {
 
 interface RecordingOptionsProps {
   onSave: () => void;
+  onDelete?: () => void;
 }
 export const RecordingOptions: React.FC<
   RecordingOptionsProps
-> = ({ onSave }) => {
+> = ({ onSave, onDelete = () => {} }) => {
   const {
     recordingState,
     changeRecordingState,
@@ -59,7 +60,12 @@ export const RecordingOptions: React.FC<
   return (
     <View style={styles.footer}>
       <View style={styles.recordingOptions}>
-        <TouchableOpacity onPress={discardRecording}>
+        <TouchableOpacity
+          onPress={() => {
+            onDelete();
+            discardRecording();
+          }}
+        >
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons
               name='delete'

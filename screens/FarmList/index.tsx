@@ -33,8 +33,12 @@ const DATA: { [key: string]: any }[] = [
 
 export const FarmListScreen = () => {
   const navigation = useNavigation();
-  const { isLoading, data = [] } = useQuery(ALL_FARMS, () =>
-    fetch('/farms')
+  const { data = [] }: any = useQuery(
+    ALL_FARMS,
+    () => fetch('/farms'),
+    {
+      refetchInterval: 5000,
+    }
   );
 
   return (
@@ -69,7 +73,7 @@ export const FarmListScreen = () => {
             </View>
 
             <FlatList
-              data={DATA}
+              data={data}
               ListHeaderComponent={
                 <ListItem
                   listItemStyle={{
@@ -80,12 +84,12 @@ export const FarmListScreen = () => {
                   size='size'
                 />
               }
-              renderItem={({ item, index }) => {
+              renderItem={({ item }) => {
                 return (
                   <ListItem
-                    id={item.id?.slice(0, 4)}
-                    label={item.title}
-                    size={index + 10}
+                    id={item.id}
+                    label={item.label}
+                    size={item.size}
                   />
                 );
               }}

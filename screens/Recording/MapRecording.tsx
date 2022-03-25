@@ -78,7 +78,7 @@ interface CoordinateType {
   longitude: number;
 }
 export const MapRecording = () => {
-  const { discardRecording, recordingState } =
+  const { discardRecording, recordingState, setFarmData } =
     useRecording();
   const [currentLocation, setCurrentLocation] =
     useState<CoordinateType>();
@@ -184,8 +184,8 @@ export const MapRecording = () => {
         >
           <Polygon
             coordinates={coordinates}
-            fillColor='rgba(35, 140, 35,0.4)'
-            strokeColor='#238c23' // fallback for when `strokeColors` is not supported by the map-provider
+            fillColor='rgba(255, 246, 25, 0.3)'
+            strokeColor='#FFF619' // fallback for when `strokeColors` is not supported by the map-provider
           />
           {currentLocation?.latitude ? (
             <Marker
@@ -214,8 +214,10 @@ export const MapRecording = () => {
       >
         <RecordingOptions
           onSave={() => {
+            setFarmData({ coordinates });
             setStep('farm-label');
           }}
+          onDelete={() => setCoordinates([])}
         />
       </RecordingForm>
     </>
