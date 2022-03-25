@@ -60,7 +60,7 @@ export const labelRecordStyles = StyleSheet.create({
     flexDirection: 'column',
   },
   content: {
-    flex: 0.3,
+    flex: 0.4,
   },
   containerWithKeyboard: {
     position: 'absolute',
@@ -70,7 +70,7 @@ export const labelRecordStyles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     marginBottom: 10,
     borderRadius: 15,
-    paddingVertical: 5,
+    paddingVertical: 10,
     paddingHorizontal: 21,
     marginHorizontal: 5,
   },

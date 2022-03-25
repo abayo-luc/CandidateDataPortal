@@ -1,31 +1,87 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import {
   View,
-  Text,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
+import { v1 as uuidv4 } from 'uuid';
+import { Button } from 'react-native-paper';
+import { useMutation } from 'react-query';
 
-import moment from 'moment';
-import { Button, TextInput } from 'react-native-paper';
-
+import { TextInput } from '../../../components';
+import { useRecording } from '../../../context/RecordContext';
+import {
+  ALL_USERS,
+  fetch,
+  GET_LOCAL_STORAGE_USER,
+} from '../../../store';
 import {
   styles,
   Props,
   labelRecordStyles,
   Colors,
 } from './styles';
-import useKeyboard from '../../../hooks/useKeyboard';
+import { useNavigation } from '@react-navigation/native';
 
 export const HarvestRecording: React.FC<Props> = ({
-  onDiscard,
-  onSave,
+  onDiscard = () => {},
 }) => {
-  const [keyboardVisible] = useKeyboard();
-  const [label, setLabel] = React.useState('');
-  const [date, setDate] = React.useState('2016-05-15');
+  const navigation = useNavigation();
+  const mutation = useMutation((payload) =>
+    fetch.post('/farms', payload)
+  );
+  const { farmData, setFarmData } = useRecording();
+  const [values, setValues] = React.useState<{
+    [key: string]: any;
+  }>({
+    year: farmData.year,
+    season: farmData.season,
+    crop: farmData.crop,
+    quantity: farmData.quantity,
+    unit: farmData.unit,
+  });
+
+  const handleInputChange = (
+    value: string,
+    key: 'year' | 'season' | 'crop' | 'quantity' | 'unit'
+  ) => {
+    setValues((state) => ({
+      ...state,
+      [key]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const user: any = JSON.parse(
+        (await AsyncStorage.getItem(
+          GET_LOCAL_STORAGE_USER
+        )) || ''
+      );
+
+      await mutation.mutateAsync({
+        ...farmData,
+        ...values,
+        ownerId: user.id,
+        ownerType: user.userType,
+        uuid: new Date().valueOf(),
+        userId: user.id,
+        userType: user.userType,
+        geoShapes: [
+          {
+            geojson: JSON.stringify(farmData.coordinates),
+          },
+        ],
+      } as any);
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Action Failed', error.message);
+    }
+  };
   return (
     <View style={[labelRecordStyles.container]}>
       <TouchableWithoutFeedback
@@ -40,7 +96,6 @@ export const HarvestRecording: React.FC<Props> = ({
             keyboardVerticalOffset={60}
             style={[
               labelRecordStyles.content,
-
               {
                 flex: 0.42,
                 backgroundColor: Colors.light.background,
@@ -58,54 +113,50 @@ export const HarvestRecording: React.FC<Props> = ({
               ]}
             >
               <TextInput
-                value={label}
-                onChangeText={(text) => setLabel(text)}
+                value={values.year}
+                onChangeText={(text: string) =>
+                  handleInputChange(text, 'year')
+                }
                 placeholder='Year'
-                style={{
-                  backgroundColor: 'transparent',
-                  padding: 0,
-                }}
                 autoComplete={false}
+                keyboardType='decimal-pad'
               />
               <TextInput
-                value={label}
-                onChangeText={(text) => setLabel(text)}
+                value={values.season}
+                onChangeText={(text: string) =>
+                  handleInputChange(text, 'season')
+                }
                 placeholder='Season'
-                style={{
-                  backgroundColor: 'transparent',
-                  padding: 0,
-                }}
                 autoComplete={false}
               />
               <TextInput
-                value={label}
-                onChangeText={(text) => setLabel(text)}
+                value={values.crop}
+                onChangeText={(text: string) =>
+                  handleInputChange(text, 'crop')
+                }
                 placeholder='Crop'
-                style={{
-                  backgroundColor: 'transparent',
-                  padding: 0,
-                }}
                 autoComplete={false}
               />
               <View style={styles.row}>
                 <TextInput
-                  value={label}
-                  onChangeText={(text) => setLabel(text)}
+                  value={values.quantity}
+                  onChangeText={(text: string) =>
+                    handleInputChange(text, 'quantity')
+                  }
                   placeholder='Quantity'
+                  keyboardType='decimal-pad'
                   style={{
-                    backgroundColor: 'transparent',
-                    padding: 0,
                     flex: 0.75,
                   }}
                   autoComplete={false}
                 />
                 <TextInput
-                  value={label}
-                  onChangeText={(text) => setLabel(text)}
+                  value={values.unit}
+                  onChangeText={(text: string) =>
+                    handleInputChange(text, 'unit')
+                  }
                   placeholder='Unit'
                   style={{
-                    backgroundColor: 'transparent',
-                    padding: 0,
                     flex: 0.2,
                   }}
                   autoComplete={false}
@@ -118,14 +169,18 @@ export const HarvestRecording: React.FC<Props> = ({
                   mode='contained'
                   style={{ flex: 0.45 }}
                   color={Colors.light.red}
-                  onPress={onDiscard}
+                  onPress={() => {
+                    setFarmData(values);
+                    onDiscard();
+                  }}
                 >
                   Discard
                 </Button>
                 <Button
                   mode='contained'
                   style={{ flex: 0.45 }}
-                  onPress={onSave}
+                  onPress={handleSubmit}
+                  disabled={mutation.isLoading}
                 >
                   Save
                 </Button>

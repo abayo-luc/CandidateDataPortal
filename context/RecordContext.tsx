@@ -1,5 +1,4 @@
-import React from 'react';
-import * as Location from 'expo-location';
+import React, { useState } from 'react';
 
 type RecordingStateType = 'paused' | 'recording' | 'none';
 interface Props {}
@@ -9,6 +8,8 @@ interface RecordingContextType {
     status: RecordingStateType
   ) => void;
   discardRecording: () => void;
+  farmData: { [key: string]: any };
+  setFarmData: (values: { [key: string]: any }) => void;
 }
 
 /**
@@ -24,12 +25,31 @@ export const RecordingContext =
  * @param param0
  * @returns
  */
+const InitialFarmData = {
+  year: '',
+  season: '',
+  crop: '',
+  quantity: '',
+  unit: '',
+  label: '',
+  size: '',
+  sizeUnit: 'sqm',
+  coordinates: [],
+};
 export const RecordingProvider: React.FC<Props> = ({
   children,
 }) => {
   const [recordingState, setRecordingState] =
     React.useState<RecordingStateType>('none');
-
+  const [farmData, setFarmData] = useState<{
+    [key: string]: any;
+  }>({
+    year: '',
+    season: '',
+    crop: '',
+    quantity: '',
+    unit: '',
+  });
   const changeRecordingState = (
     state: RecordingStateType
   ) => {
@@ -38,6 +58,11 @@ export const RecordingProvider: React.FC<Props> = ({
 
   const discardRecording = () => {
     setRecordingState('none');
+    setFarmData(InitialFarmData);
+  };
+
+  const handleFarmData = (data: { [key: string]: any }) => {
+    setFarmData((state) => ({ ...state, ...data }));
   };
 
   const memoValue = React.useMemo(
@@ -45,8 +70,10 @@ export const RecordingProvider: React.FC<Props> = ({
       recordingState,
       changeRecordingState,
       discardRecording,
+      farmData,
+      setFarmData: handleFarmData,
     }),
-    [recordingState]
+    [recordingState, farmData]
   );
   return (
     <RecordingContext.Provider value={memoValue}>

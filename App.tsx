@@ -1,8 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ImageBackground, View } from 'react-native';
 import {
   Provider as PaperProvider,
   DefaultTheme,
+  ActivityIndicator,
 } from 'react-native-paper';
 import { QueryClientProvider } from 'react-query';
 
@@ -25,11 +27,25 @@ export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
-  if (!isLoadingComplete) {
-    return null;
-  } else {
-    return (
-      <PaperProvider theme={theme}>
+  return (
+    <PaperProvider theme={theme}>
+      {!isLoadingComplete ? (
+        <ImageBackground
+          source={require('./assets/images/splash.png')}
+          resizeMode='cover'
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ActivityIndicator
+            color={theme.colors.primary}
+            animating
+            size='large'
+          />
+        </ImageBackground>
+      ) : (
         <QueryClientProvider client={queryClient}>
           <RecordingProvider>
             <SafeAreaProvider>
@@ -38,7 +54,7 @@ export default function App() {
             </SafeAreaProvider>
           </RecordingProvider>
         </QueryClientProvider>
-      </PaperProvider>
-    );
-  }
+      )}
+    </PaperProvider>
+  );
 }

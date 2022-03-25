@@ -1,12 +1,18 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Modal, Portal, Button } from 'react-native-paper';
+import { useRecording } from '../../../context/RecordContext';
 import { styles, Colors, Props } from './styles';
 
 export const DiscardRecording: React.FC<Props> = ({
   onDiscard = () => {},
   onSave,
 }) => {
+  const { discardRecording } = useRecording();
+  const handleDiscard = () => {
+    onDiscard();
+    discardRecording();
+  };
   return (
     <View style={styles.modalContentContainerStyle}>
       <View style={styles.innerContainer}>
@@ -26,7 +32,7 @@ export const DiscardRecording: React.FC<Props> = ({
             <Button
               mode='contained'
               color={Colors.light.red}
-              onPress={onDiscard}
+              onPress={handleDiscard}
             >
               Yes, Got it!
             </Button>
